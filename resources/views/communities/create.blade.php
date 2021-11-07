@@ -28,15 +28,33 @@
                                        class="col-md-4 col-form-label text-md-right">{{ __('Description') }}</label>
                                 <div class="col-md-6">
                                     <textarea id="description"
-                                              class="form-control"
+                                              class="form-control @error('description') is-invalid @enderror"
                                               name="description"
-                                              autofocus>{{ old('description') }}</textarea>
+                                              autofocus
+                                    required>
+                                        {{ old('description') }}
+                                    </textarea>
 
                                     @error('description')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
                                     </span>
                                     @enderror
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="topics"
+                                       class="col-md-4 col-form-label text-md-right">{{ __('Topics') }}</label>
+                                <div class="col-md-6">
+                                    @foreach ($topics as $topic)
+                                        <div class="form-check">
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox" name="topics[]" value="{{$topic->id}}"/>
+{{--                                        <label for=""></label>--}}
+                                            {{$topic->name}}
+                                        </div>
+                                    @endforeach
                                 </div>
                             </div>
                             <div class="form-group row mb-0">

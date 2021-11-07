@@ -5,13 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Community extends Model
+class CommunityTopic extends Model
 {
     use HasFactory;
-    protected $guarded=[];
-
-    public function topics()
-    {
-        return $this->belongsToMany(Topic::class);
-    }
+    protected $table='community_topic';
 }
