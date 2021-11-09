@@ -16,7 +16,10 @@ class CommunityController extends Controller
      */
     public function index()
     {
-        //
+        $communities= Community::where('user_id', auth()->id())->get();
+        return view('communities.index')->with([
+           'communities'=>$communities
+        ]);
     }
 
     /**
@@ -66,7 +69,10 @@ class CommunityController extends Controller
      */
     public function edit(Community $community)
     {
-        //
+        $community->load('topics');
+        return view('communities.edit')->with([
+            'community'=>$community
+        ]);
     }
 
     /**
