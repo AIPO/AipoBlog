@@ -3,8 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class StoreCommunityRequest extends FormRequest
+class UpdateCommunityRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,7 +25,7 @@ class StoreCommunityRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'=> 'required|min:3|unique:communities',
+            'name'=> ['required','min:3', Rule::unique('communities')->ignore($this->community)],
             'description'=> 'required|max:600',
         ];
     }

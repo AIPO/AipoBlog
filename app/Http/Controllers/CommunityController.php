@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCommunityRequest;
+use App\Http\Requests\UpdateCommunityRequest;
 use App\Models\Community;
 use App\Models\Topic;
-use Illuminate\Http\Request;
 
 class CommunityController extends Controller
 {
@@ -16,9 +16,9 @@ class CommunityController extends Controller
      */
     public function index()
     {
-        $communities= Community::where('user_id', auth()->id())->get();
+        $communities = Community::where('user_id', auth()->id())->get();
         return view('communities.index')->with([
-           'communities'=>$communities
+            'communities' => $communities
         ]);
     }
 
@@ -29,10 +29,10 @@ class CommunityController extends Controller
      */
     public function create()
     {
-        $topics= Topic::all();
+        $topics = Topic::all();
         return view('communities.create')
             ->with([
-                'topics' =>$topics
+                'topics' => $topics
             ]);
     }
 
@@ -44,7 +44,7 @@ class CommunityController extends Controller
      */
     public function store(StoreCommunityRequest $request)
     {
-        $community = Community::create($request->validated() + ['user_id'=> auth()->id()]);
+        $community = Community::create($request->validated() + ['user_id' => auth()->id()]);
         $community->topics()->attach($request->topics);
 
         return redirect()->route('communities.show', $community);
@@ -53,7 +53,7 @@ class CommunityController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Community  $community
+     * @param \App\Models\Community $community
      * @return \Illuminate\Http\Response
      */
     public function show(Community $community)
@@ -64,37 +64,54 @@ class CommunityController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Community  $community
+     * @param \App\Models\Community $community
      * @return \Illuminate\Http\Response
      */
     public function edit(Community $community)
     {
+        if ($community->user_id != auth()->id()) {
+            abort(403);
+        }
         $community->load('topics');
+        $topics = Topic::all();
         return view('communities.edit')->with([
-            'community'=>$community
+            'community' => $community,
+            'topics' => $topics
         ]);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Community  $community
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Community $community
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Community $community)
+    public function update(UpdateCommunityRequest $request, Community $community)
     {
-        //
+        if ($community->user_id != auth()->id()) {
+            abort(403);
+        }
+        $community->update($request->validated());
+        $community->topics()->sync($request->topics);
+
+        return redirect()->route('communities.index')
+            ->with('message', __('Successfully updated.'));
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Community  $community
+     * @param \App\Models\Community $community
      * @return \Illuminate\Http\Response
      */
     public function destroy(Community $community)
     {
-        //
+        if ($community->user_id != auth()->id()) {
+            abort(403);
+        }
+        $community->delete();
+        return redirect()->route('communities.index')
+            ->with('message', __('Successfully deleted.'));
     }
 }

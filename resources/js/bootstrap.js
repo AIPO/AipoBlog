@@ -12,6 +12,7 @@ try {
     require('select2')
     $('select').select2()
     require('bootstrap')
+    $('.toast').toast('show')
 } catch (e) {}
 
 /**

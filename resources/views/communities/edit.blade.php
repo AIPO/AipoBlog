@@ -6,7 +6,7 @@
                 <div class="card">
                     <div class="card-header"> {{__('Edit Community')}}</div>
                     <div class="card-body">
-                        <form method="POST" action="{{ route('communities.update') }}">
+                        <form method="POST" action="{{ route('communities.update', $community) }}">
                             @csrf
                             @method('PUT')
                             <div class="form-group row">
@@ -53,7 +53,7 @@
                                     <select class="custom-select" name="topics[]" multiple>
                                         @foreach ($topics as $topic)
                                             <option value="{{$topic->id}}"
-                                            @if ($community->$topics->contains($topic->id))
+                                            @if ($community->topics->contains($topic->id))
                                                 selected
                                             @endif>
                                                 {{$topic->name}}</option>
