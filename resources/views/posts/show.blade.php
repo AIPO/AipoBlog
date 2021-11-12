@@ -12,6 +12,14 @@
                                target="_blank">{{$post->post_url}}</a>
                         @endif
                         {{$post->post_text}}
+
+                        @auth
+                            @if($post->user_id == auth()->id())
+                                    <hr>
+                                    <a href="{{route('communities.posts.edit',[$community, $post])}}"
+                                    class="btn btn-sm btn-secondary">{{__('Edit')}}</a>
+                                @endif
+                        @endauth
                     </div>
                 </div>
             </div>
