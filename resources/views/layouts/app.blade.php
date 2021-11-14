@@ -81,8 +81,27 @@
         </div>
     </nav>
     <main class="container-fluid">
-        @yield('content')
-
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    @yield('content')
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            {{__('Newest Posts')}}
+                        </div>
+                        <div class="card-body"></div>
+                    </div>
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            {{__('Newest Communities')}}
+                        </div>
+                        <div class="card-body"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
     @if(session('message'))
         <div class="position-fixed bottom-0 right-0 p-3" style="z-index: 5; right: 0; bottom: 0;">

@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePostRequest;
 use App\Models\Community;
 use App\Models\Post;
-use Illuminate\Http\Request;
+use App\Models\PostVote;
+use Intervention\Image\Facades\Image;
 
 class CommunityPostController extends Controller
 {
@@ -37,12 +38,22 @@ class CommunityPostController extends Controller
      */
     public function store(StorePostRequest $request, Community $community)
     {
-        $community->posts()->create([
+        $post = $community->posts()->create([
             'user_id' => auth()->id(),
             'title' => $request->title,
             'post_text' => $request->post_text ?? null,
             'post_url' => $request->post_url ?? null,
         ]);
+        if ($request->hasFile('post_image')) {
+            $image = $request->file('post_image')->getClientOriginalName();
+            $request->file('post_image')->storeAs('posts/' . $post->id, $image);
+            $post->update(['post_image' => $image]);
+            $file = Image::make(storage_path('app/public/posts/' . $post->id . '/' . $image));
+            $file->resize(300, null, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+            $file->save(storage_path('app/public/posts/' . $post->id . '/400x400_' . $image));
+        }
 
         return redirect()->route('communities.show', $community);
     }
@@ -57,7 +68,7 @@ class CommunityPostController extends Controller
     {
         return view('posts.show')->with([
             'post' => $post,
-            'community'=>$community
+            'community' => $community
         ]);
     }
 
@@ -69,8 +80,12 @@ class CommunityPostController extends Controller
      */
     public function edit(Community $community, Post $post)
     {
+        if ($post->user_id != auth()->id()) {
+            abort(403);
+        }
         return view('posts.edit', compact('community', 'post'));
     }
+
     /**
      * Update the specified resource in storage.
      *
@@ -78,19 +93,60 @@ class CommunityPostController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(StorePostRequest $request, Community $community, Post $post)
     {
-        //
+        if ($post->user_id != auth()->id()) {
+            abort(403);
+        }
+
+        $post->update($request->validated());
+
+        if ($request->hasFile('post_image')) {
+            $image = $request->file('post_image')->getClientOriginalName();
+            $request->file('post_image')->storeAs('posts/' . $post->id, $image);
+            if ($post->post_image != '' && $post->post_image != $image) {
+                unlink(storage_path('app/public/posts/' . $post->id . '/' . $post->image));
+            }
+            $post->update(['post_image' => $image]);
+            $file = Image::make(storage_path('app/public/posts/' . $post->id . '/' . $image));
+            $file->resize(300, null, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+            $file->save(storage_path('app/public/posts/' . $post->id . '/400x400_' . $image));
+        }
+        return redirect()->route('communities.posts.show', [$community, $post]);
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param int $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy($id)
+    public function destroy(Community $community, Post $post)
     {
-        //
+        if ($post->user_id != auth()->id()) {
+            abort(403);
+        }
+        $post->delete();
+        return redirect()->route('communities.show', [$community]);
+    }
+
+    public function vote($post_id, $vote)
+    {
+        $post = Post::with('community')->findOrFail($post_id);
+
+        if (!PostVote::where('post_id', $post_id)->where('user_id', auth()->id())->count()
+            && in_array($vote,[-1,1])&& $post->user_id != auth()->id()
+        ) {
+            PostVote::create([
+                'post_id' => $post_id,
+                'user_id' => auth()->id(),
+                'vote' => $vote
+            ]);
+            $post->increment('votes', $vote);
+        }
+
+        return redirect()->route('communities.show', $post->community);
     }
 }
