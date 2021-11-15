@@ -87,18 +87,7 @@
                     @yield('content')
                 </div>
                 <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-header">
-                            {{__('Newest Posts')}}
-                        </div>
-                        <div class="card-body"></div>
-                    </div>
-                    <div class="card mt-4">
-                        <div class="card-header">
-                            {{__('Newest Communities')}}
-                        </div>
-                        <div class="card-body"></div>
-                    </div>
+                   @include('layouts.sidebar')
                 </div>
             </div>
         </div>
