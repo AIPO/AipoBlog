@@ -7,6 +7,7 @@ use App\Models\Community;
 use App\Models\Post;
 use App\Models\PostVote;
 use App\Notifications\PostReportNotification;
+use Illuminate\Support\Facades\Gate;
 use Intervention\Image\Facades\Image;
 
 class CommunityPostController extends Controller
@@ -81,7 +82,7 @@ class CommunityPostController extends Controller
      */
     public function edit(Community $community, Post $post)
     {
-        if ($post->user_id != auth()->id()) {
+        if (Gate::denies('edit-post', $post)) {
             abort(403);
         }
         return view('posts.edit', compact('community', 'post'));
@@ -96,7 +97,7 @@ class CommunityPostController extends Controller
      */
     public function update(StorePostRequest $request, Community $community, Post $post)
     {
-        if ($post->user_id != auth()->id()) {
+        if (Gate::denies('edit-post', $post)) {
             abort(403);
         }
 
@@ -126,7 +127,7 @@ class CommunityPostController extends Controller
      */
     public function destroy(Community $community, Post $post)
     {
-        if ($post->user_id != auth()->id()) {
+        if (Gate::denies('delete-post', $post)) {
             abort(403);
         }
         $post->delete();
@@ -137,7 +138,7 @@ class CommunityPostController extends Controller
     {
         $post = Post::with('community')->findOrFail($post_id);
 
-        if (!PostVote::where('post_id', $post_id)->where('user_id', auth()->id())->count()
+        if (!$post->votes()->where('user_id', auth()->id())->count()
             && in_array($vote, [-1, 1]) && $post->user_id != auth()->id()
         ) {
             PostVote::create([

@@ -1,5 +1,6 @@
 <?php
 
+use App\Providers\GateServiceProvider;
 use App\Providers\ViewServiceProvider;
 use App\Providers\VoteServiceProvider;
 
@@ -177,6 +178,7 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        GateServiceProvider::class,
         ViewServiceProvider::class,
         VoteServiceProvider::class,
 

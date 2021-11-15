@@ -3,6 +3,7 @@
     <div class="card">
         <div class="card-header">
             <h4>{{$post->title}}</h4>
+            @guest()
                 <form action="{{route('posts.report', $post)}}"
                       class="d-inline-block"
                       method="POST"
@@ -15,6 +16,7 @@
                         {{__('Report Post')}}
                     </button>
                 </form>
+            @endguest
         </div>
         <div class="card-body">
             @if($post->post_image != '')
@@ -26,7 +28,7 @@
                 <a class="mb-2"
                    href="{{$post->post_url}}"
                    target="_blank">{{$post->post_url}}</a>
-                    <br>
+                <br>
             @endif
 
             {{$post->post_text}}
@@ -56,28 +58,26 @@
                     <button type="submit" class="btn btn-primary">{{__('Add Comment')}}</button>
                 </form>
 
-                @if($post->user_id == auth()->id())
+                @can('edit-post', $post)
                     <hr>
                     <a href="{{route('communities.posts.edit',[$community, $post])}}"
                        class="btn btn-sm btn-secondary">{{__('Edit')}}</a>
-                    @if($post->community->user_id == auth()->id())
-                        <form action="{{route('communities.posts.destroy', [$community,$post])}}"
-                              class="d-inline-block"
-                              method="POST"
+                @endif
+                @can('delete-post', $post)
+                    <form action="{{route('communities.posts.destroy', [$community,$post])}}"
+                          class="d-inline-block"
+                          method="POST"
+                    >
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit"
+                                class="btn btn-sm btn-danger"
+                                onclick="return confirm('Are sure to delete community?')"
                         >
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit"
-                                    class="btn btn-sm btn-danger"
-                                    onclick="return confirm('Are sure to delete community?')"
-                            >
-                                {{__('Delete Post')}}
-                            </button>
-                        </form>
-                    @endif
-
-                    @endif
-
+                            {{__('Delete Post')}}
+                        </button>
+                    </form>
+                @endcan
             @endauth
         </div>
     </div>
