@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 class CommunityFactory extends Factory
 {
@@ -13,8 +14,12 @@ class CommunityFactory extends Factory
      */
     public function definition()
     {
+        $name = $this->faker->title;
         return [
-            //
+            'name' => $name,
+            'user_id' => rand(1, 100),
+            'description' => $this->faker->text(),
+            'slug' => Str::slug($name),
         ];
     }
 }

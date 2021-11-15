@@ -2,11 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\Community;
-use Database\Factories\CommunityFactory;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
-class CommunitySeeder extends Seeder
+class UserSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -15,6 +14,9 @@ class CommunitySeeder extends Seeder
      */
     public function run()
     {
-        CommunityFactory::times(10)->create();
+        User::factory(100)->create();
+        User::factory()->create([
+            'email' => 'test@test.app'
+        ]);
     }
 }

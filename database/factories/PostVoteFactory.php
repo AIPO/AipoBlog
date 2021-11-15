@@ -14,7 +14,9 @@ class PostVoteFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'post_id'=> rand(1,500),
+'user_id'=>rand(1,100),
+            'vote'=> $this->faker->randomElement([1,-1])
         ];
     }
 }
