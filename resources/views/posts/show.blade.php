@@ -1,7 +1,21 @@
 @extends('layouts.app')
 @section('content')
     <div class="card">
-        <div class="card-header">{{$post->title}}</div>
+        <div class="card-header">
+            <h4>{{$post->title}}</h4>
+                <form action="{{route('posts.report', $post)}}"
+                      class="d-inline-block"
+                      method="POST"
+                >
+                    @csrf
+                    <button type="submit"
+                            class="btn btn-sm btn-danger"
+                            onclick="return confirm('Report post to admins?')"
+                    >
+                        {{__('Report Post')}}
+                    </button>
+                </form>
+        </div>
         <div class="card-body">
             @if($post->post_image != '')
                 <img class="card-img-top"
@@ -12,6 +26,7 @@
                 <a class="mb-2"
                    href="{{$post->post_url}}"
                    target="_blank">{{$post->post_url}}</a>
+                    <br>
             @endif
 
             {{$post->post_text}}
@@ -45,20 +60,24 @@
                     <hr>
                     <a href="{{route('communities.posts.edit',[$community, $post])}}"
                        class="btn btn-sm btn-secondary">{{__('Edit')}}</a>
-                    <form action="{{route('communities.posts.destroy', [$community,$post])}}"
-                          class="d-inline-block"
-                          method="POST"
-                    >
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit"
-                                class="btn btn-sm btn-danger"
-                                onclick="return confirm('Are sure to delete community?')"
+                    @if($post->community->user_id == auth()->id())
+                        <form action="{{route('communities.posts.destroy', [$community,$post])}}"
+                              class="d-inline-block"
+                              method="POST"
                         >
-                            {{__('Delete Post')}}
-                        </button>
-                    </form>
-                @endif
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                    class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Are sure to delete community?')"
+                            >
+                                {{__('Delete Post')}}
+                            </button>
+                        </form>
+                    @endif
+
+                    @endif
+
             @endauth
         </div>
     </div>

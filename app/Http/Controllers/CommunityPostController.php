@@ -6,6 +6,7 @@ use App\Http\Requests\StorePostRequest;
 use App\Models\Community;
 use App\Models\Post;
 use App\Models\PostVote;
+use App\Notifications\PostReportNotification;
 use Intervention\Image\Facades\Image;
 
 class CommunityPostController extends Controller
@@ -137,7 +138,7 @@ class CommunityPostController extends Controller
         $post = Post::with('community')->findOrFail($post_id);
 
         if (!PostVote::where('post_id', $post_id)->where('user_id', auth()->id())->count()
-            && in_array($vote,[-1,1])&& $post->user_id != auth()->id()
+            && in_array($vote, [-1, 1]) && $post->user_id != auth()->id()
         ) {
             PostVote::create([
                 'post_id' => $post_id,
@@ -147,5 +148,14 @@ class CommunityPostController extends Controller
         }
 
         return redirect()->route('communities.show', $post->community);
+    }
+
+    public function report($post_id)
+    {
+        $post = Post::with('community.user')->findOrFail($post_id);
+        $post->community->user->notify(new PostReportNotification($post));
+
+        return redirect()->route('communities.posts.show', [$post->community, $post])
+            ->with('warning', __('Report is sent.'));
     }
 }
