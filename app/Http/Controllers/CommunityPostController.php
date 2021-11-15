@@ -66,11 +66,11 @@ class CommunityPostController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Community $community, Post $post)
+    public function show($post_id)
     {
+        $post = Post::with('comments.user', 'community')->findOrFail($post_id);
         return view('posts.show')->with([
             'post' => $post,
-            'community' => $community
         ]);
     }
 

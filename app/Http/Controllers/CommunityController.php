@@ -56,8 +56,9 @@ class CommunityController extends Controller
      * @param \App\Models\Community $community
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
-    public function show(Community $community)
+    public function show($slug)
     {
+        $community = Community::where('slug',$slug)->firstOrFail();
         $query = $community->posts()->with('votes');
         if (request('sort', '') == 'popular') {
             $query->orderBy('votes', 'desc');

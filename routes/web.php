@@ -18,11 +18,17 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])
     ->name('home');
+Route::get('c/{slug}', [CommunityController::class, 'show'])
+    ->name('communities.show');
+Route::get('p/{post_id}', [CommunityPostController::class, 'show'])
+    ->name('communities.posts.show');
 
 Auth::routes(['verify' => true]);
 Route::group(['middleware' => ['auth', 'verified']], function () {
-    Route::resource('communities', CommunityController::class);
-    Route::resource('communities.posts', CommunityPostController::class);
+    Route::resource('communities', CommunityController::class)
+        ->except('show');
+    Route::resource('communities.posts', CommunityPostController::class)
+        ->except('show');
     Route::resource('posts.comments', PostCommentController::class);
     Route::get('posts/{post_id}/vote/{vote}', [CommunityPostController::class, 'vote'])
         ->name('post.vote');
